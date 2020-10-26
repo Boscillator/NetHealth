@@ -1,0 +1,6 @@
+data
+raw
+dask-worker-space
+.ipynb_checkpoints
+*.pyc
+
