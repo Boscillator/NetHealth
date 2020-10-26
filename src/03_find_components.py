@@ -3,6 +3,8 @@ import networkx as nx
 import pandas as pd
 import time
 import json
+import community
+import collections
 import matplotlib.pyplot as plt
 from dask.distributed import Client, LocalCluster
 
@@ -44,8 +46,16 @@ def graph_combine(G1: nx.Graph, G2: nx.Graph):
 
 
 def get_components(t):
-    components = list(nx.connected_components(t[1]))
-    return t[0], components
+    # components = list(nx.connected_components(t[1]))
+    # return t[0], components
+
+    G = t[1]
+    partition = community.community_louvain.best_partition(G)
+    communities = collections.defaultdict(set)
+    for node,part in partition.items():
+        communities[part].add(node)
+    return t[0], list(communities.values())
+
 
 
 def flatten(group):
@@ -55,7 +65,7 @@ def flatten(group):
     } for component in group[1]]
 
 
-def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_components/*.ndjson", period=30 * 60):
+def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_components/*.ndjson", period=24 * 60 * 60):
     lines = db.read_text(inpath)
     edges = lines.str.strip().str.split(',')
     edges = edges.map(parse_edge).filter(not_none)

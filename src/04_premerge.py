@@ -47,7 +47,7 @@ def merge_groups(g1: Group, g2: Group):
 
 def main(inpath="data/03_find_components/*.ndjson", outpath="data/04_pre_merge/*.ndjson"):
     groups = db.read_text(inpath).map(json.loads).map(json_to_component)
-    groups = groups.foldby(lambda g: g.nodes, merge_groups, Group()).map(lambda t: t[1]).persist()
+    # groups = groups.foldby(lambda g: g.nodes, merge_groups, Group()).map(lambda t: t[1]).persist()
 
     group_sizes = groups.map(lambda g: len(g.nodes)).compute()
     number_of_meetings = groups.map(lambda g: len(g.components)).compute()
