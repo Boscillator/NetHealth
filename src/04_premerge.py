@@ -3,6 +3,7 @@ import dask.bag as db
 import time
 import json
 import numpy as np
+import os
 from dataclasses import dataclass, field
 from dask.distributed import Client, LocalCluster
 import matplotlib.pyplot as plt
@@ -52,10 +53,22 @@ def main(inpath="data/03_find_components/*.ndjson", outpath="data/04_pre_merge/*
     group_sizes = groups.map(lambda g: len(g.nodes)).compute()
     number_of_meetings = groups.map(lambda g: len(g.components)).compute()
 
-    print(np.unique(group_sizes, return_counts=True))
+
+    with open("data/meta/period.txt") as f:
+        period = int(f.read())//60
+
+    hist = np.unique(group_sizes, return_counts=True)
+    if not os.path.exists("diagnostics/04_premerge/hist"):
+        os.makedirs("diagnostics/04_premerge/hist")
+    with open(f"diagnostics/04_premerge/hist/{period}min.json", "w+") as f:
+        json.dump({
+            'groups': hist[0].tolist(),
+            'freq': hist[1].tolist()
+        }, f)
+        print(hist)
 
     plt.hist(group_sizes)
-    plt.title("Group sizes pre-merge")
+    plt.title(f"Group sizes pre-merge. [period={period}min]")
     plt.xlabel("Size of group")
     plt.ylabel("Frequency")
     plt.savefig("diagnostics/04_premerge/group_size_hist.png")

@@ -3,6 +3,9 @@ import dask.dataframe as dd
 from dask.distributed import Client
 
 def split(source_file, output_directory, npart, rename):
+    with open("data/meta/source.txt", "w+") as f:
+        f.write("<INVALID>")
+
     df = dd.read_csv(source_file)
     df = df.repartition(npartitions=npart)
     if rename:
@@ -11,6 +14,9 @@ def split(source_file, output_directory, npart, rename):
     df['timestamp'] = dd.to_datetime(df['epochtime'], unit='ms')
     df = df.drop(columns='epochtime')
     df.to_csv(output_directory+ '/*.csv', index=False, line_terminator='\n')
+
+    with open("data/meta/source.txt", "w+") as f:
+        f.write(source_file)
 
 if __name__ == '__main__':
     client = Client()

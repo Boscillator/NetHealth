@@ -65,7 +65,11 @@ def flatten(group):
     } for component in group[1]]
 
 
-def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_components/*.ndjson", period=24 * 60 * 60):
+def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_components/*.ndjson", period=60 * 60):
+
+    with open("data/meta/period.txt", "w+") as f:
+        f.write("<INVALID>")
+
     lines = db.read_text(inpath)
     edges = lines.str.strip().str.split(',')
     edges = edges.map(parse_edge).filter(not_none)
@@ -85,6 +89,8 @@ def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_comp
     flattened_components = components.map(flatten).flatten()
     flattened_components.map(json.dumps).to_textfiles(outpath)
 
+    with open("data/meta/period.txt", "w+") as f:
+        f.write(str(period))
 
 if __name__ == '__main__':
     cluster = LocalCluster(n_workers=12, threads_per_worker=1, memory_limit='166GB')
