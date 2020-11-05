@@ -64,7 +64,7 @@ def get_components(t):
         partition = community.community_louvain.best_partition(G)
         communities = collections.defaultdict(set)
         for node, group in partition.items():
-            communities[part].add(group)
+            communities[node].add(group)
     
     return t[0], list(communities.values())
 
