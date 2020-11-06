@@ -65,7 +65,7 @@ def flatten(group):
     } for component in group[1]]
 
 
-def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_components/*.ndjson", period=60 * 60):
+def find_components(inpath="data/02_normalize/*.csv", outpath="data/03_find_components/*.ndjson", period=30 * 60):
 
     with open("data/meta/period.txt", "w+") as f:
         f.write("<INVALID>")
