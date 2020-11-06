@@ -7,6 +7,7 @@ import community
 import collections
 import matplotlib.pyplot as plt
 from dask.distributed import Client, LocalCluster
+from karateclub import EgoNetSplitter
 
 
 def not_none(edge):
@@ -37,10 +38,21 @@ def get_components(t):
     # return t[0], components
 
     G = t[1]
-    partition = community.community_louvain.best_partition(G)
-    communities = collections.defaultdict(set)
-    for node, part in partition.items():
-        communities[part].add(node)
+
+    try:
+        model = EgoNetSplitter()
+        model.fit(G)
+        partition = model.get_memberships()
+        communities = collections.defaultdict(set)
+        for node, groups in partition.items():
+            for group in groups:
+                communities[node].add(group)
+    except:
+        partition = community.community_louvain.best_partition(G)
+        communities = collections.defaultdict(set)
+        for node, group in partition.items():
+            communities[node].add(group)
+    
     return t[0], list(communities.values())
 
 
